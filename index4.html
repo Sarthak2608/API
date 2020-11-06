@@ -1,0 +1,311 @@
+<!-- https://api.github.com/repos/coding-blocks/oneauth/contributors -->
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootswatch/4.5.2/flatly/bootstrap.min.css" integrity="sha384-qF/QmIAj5ZaYFAeQcrQ6bfVMAh4zZlrGwTPY7T/M+iTTLJqJBJjwwnsE5Y0mV7QK" crossorigin="anonymous">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+	<script type="text/javascript">
+//https://api.github.com/repos/coding-blocks/oneauth/stats/contributors
+
+
+class Repository
+{
+	constructor(name,forks)
+	{
+		this.commit=[]
+		this.repo_name=name;	//It stores the name of the Repository
+		this.forks=forks;	//It stores the number of forks 
+	}
+	setTopContributors(commit) //commit is a array of class Commit_user
+	{
+		this.commit=commit;
+	}
+}
+
+class Commit_User
+{
+	constructor(user_name,total_commits)
+	{
+		this.user_name=user_name;
+		this.total_commits=total_commits;
+	}
+}
+
+
+
+async function getOrganisationRepo(token_no,org_name,n,m) {
+				var page_no=1;
+				let Repo=[];
+
+
+
+				while(1){
+				    // Storing response 
+				    u='https://api.github.com/orgs/'+org_name+'/repos'+'?per_page=100&page='+page_no.toString();
+				    console.log(u);
+
+			
+				    const response = await fetch(u, {
+        				"headers": {
+            			'Authorization': 'Token '+token_no,
+        				},
+        				"methods":"GET"
+    				});
+    				console.log(response);
+				    // Storing data in form of JSON 
+				    var data = await response.json(); 
+					if(data.length==0)
+						break;
+					//    console.log(data);
+				    try{
+				   		for(let x of data)
+					    {
+					    	if(x.private==false){
+					    	Repo.push(new Repository(x.name,x.forks));
+					    	}
+					    } 
+				    }
+				    catch(err)
+				    {
+				    	alert("Incorrect Data");
+				    	return Repo;
+				    }
+				   
+				    page_no+=1;
+				}
+				Repo.sort(function(a,b){return b.forks-a.forks}); //sorting in descending order by the forks
+
+
+
+				while(Repo.length>n) 
+					Repo.pop();
+
+
+				for(let i=0;i<Repo.length;i++)
+				{
+					console.log(Repo[i].repo_name);
+					console.log(Repo[i].forks);
+				}
+
+				for(let i=0;i<Repo.length;i++)
+				{
+					let contributors_url='https://api.github.com/repos/'+org_name+'/'+Repo[i].repo_name+'/stats/contributors';
+					console.log(Repo[i].repo_name);
+					let Commit=[]
+					page_no=1;
+					let last=[]
+					let last_data={};
+					while(1){
+						// Storing response 
+						let u=contributors_url+'?page='+page_no.toString();
+						console.log(u);
+					
+						const response = await fetch(u, {
+				        	headers: {
+				            		'Authorization': 'Token '+token_no,
+				        	}
+				    	});
+
+						
+						// Storing data in form of JSON 
+					    let data = await response.json(); 
+						if(data.length==0)
+							break;
+						let ok=1;
+						let nlast=[];
+						try
+						{
+							for(let x of data)
+							{
+								if(last.length!=0&&last[0]==x.author.login)
+								{
+									ok=0;
+									break;
+								}
+								Commit.push(new Commit_User(x.author.login,x.total));
+								nlast.push(x.author.login);
+							} 
+						}
+						catch(err)
+						{
+							console.log(err);
+						}
+						if(ok==0)
+							break;
+						last=nlast;
+						
+						Commit.sort(function(a,b){return b.total_commits-a.total_commits});
+						while(Commit.length>m)
+							Commit.pop();
+
+						Repo[i].setTopContributors(Commit);
+
+						for(let j=0;j<Commit.length;j++)
+							console.log(Commit[j].user_name);
+							console.log(' ');
+						page_no+=1;
+					}
+					
+				}
+
+			
+
+				return Repo;
+} 
+
+
+		
+function displayRepo(obj,org_name)
+{
+	var base_url='https://github.com';
+	var s='';
+
+	for(let i=0;i<obj.commit.length;i++)
+	{	
+		s+=`
+		<a href="`
+		+base_url+'/'+obj.commit[i].user_name+
+		`" style="color:black;"><li class="list-group-item d-flex justify-content-between align-items-center">
+		    `+obj.commit[i].user_name+`
+		   <span class="badge badge-primary badge-pill" aria-label="Commit Counts">Commits:
+		    `+obj.commit[i].total_commits+`
+		    </span>
+		  </li></a>`;
+	}
+	 document.getElementById("output").innerHTML += `
+<div class="jumbotron" style="margin-left:10%;margin-right:10%;margin-top:5%;">
+  <p class="lead">
+  	<h3>
+    	<a class="btn btn-primary btn-lg" href="`+base_url+'/'+org_name+'/'+obj.repo_name+`" role="button">
+    	`+obj.repo_name+`</a>
+   		<span class="badge badge-secondary">Forks:`+obj.forks+`</span>
+   	</h3>
+  </p>
+
+  	 <ul class="list-group">
+		  `+s+`
+		</ul>
+</div>
+`;
+
+}
+
+function start_loading()
+{
+	document.getElementById("output").innerHTML=`<h4>
+		<center>
+			<button class="buttonload badge badge-info">
+	  		<i class="fa fa-spinner fa-spin"></i>Loading
+		</button>	
+		</center>
+	</h4>`;
+}
+
+
+function stop_loading()
+{	
+	document.getElementById("output").innerHTML=``;	
+}
+
+
+		  function solve() { 
+		  			// alert('Welcome');
+		  		//	start_loading();
+		  			
+
+			  	    let N=parseInt((document.getElementById('N').value));
+			  	    let M=parseInt((document.getElementById('M').value));
+			  	    let Org_Name=document.getElementById('Org_Name').value;
+			  	    let token_no=document.getElementById('Token_No').value;
+			  	    
+			 
+			  		console.log('hee');
+			 		console.log(N);
+			
+
+			  // 		(async () => {
+			  // 			Repo=await getOrganisationRepo(token_no,Org_Name,N,M);
+					//     console.log(Repo.length);
+
+					//     stop_loading();
+					    
+					//     for(let i=0;i<Repo.length;i++)
+					//     {
+					//     	displayRepo(Repo[i],Org_Name);
+					//     }
+					   
+					// })();
+       	  }
+
+
+	
+	</script>
+</head>
+<body>
+
+
+
+
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+  <a class="navbar-brand" href="#"> <legend>Almabase Software Engineer Intern Task</legend></a>
+</nav>
+
+
+
+
+
+<br>
+	<div class="container" style="margin-left:10%;margin-right:12%;">
+		<form>
+  <fieldset>
+   
+    <div class="form-group row">
+      <label for="staticEmail" class="col-sm-2 col-form-label">Organisation Name:</label>
+      <div class="col-sm-10">
+          <input type="text" class="form-control" id="Org_Name" placeholder="eg- Google">
+      </div>
+    </div>
+
+       <div class="form-group row">
+      <label for="staticEmail" class="col-sm-2 col-form-label">Github Token No:</label>
+      <div class="col-sm-10">
+          <input type="text" class="form-control" id="Token_No" placeholder="eg- a22ayd72XX">
+      </div>
+    </div>
+
+   <div class="form-group row">
+      <label for="staticEmail" class="col-sm-2 col-form-label">N:</label>
+      <div class="col-sm-10">
+          <input type="number" class="form-control" id="N" placeholder="eg- 2">
+      </div>
+    </div>
+
+   <div class="form-group row">
+      <label for="staticEmail" class="col-sm-2 col-form-label">M:</label>
+      <div class="col-sm-10">
+          <input type="number" class="form-control" id="M" placeholder="eg- 3">
+      </div>
+    </div>
+
+
+
+    <button class="btn btn-primary" onclick="solve();">Show me</button>
+  </fieldset>
+</form>
+	</div>	
+
+
+		
+
+<div id="output">
+	
+</div>
+			 
+
+
+</body>
+</html>
+
