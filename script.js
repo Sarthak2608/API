@@ -134,6 +134,8 @@ async function getOrganisationRepo(token_no,org_name,n,m) {
 			for(let j=0;j<Commit.length;j++)
 				console.log(Commit[j].user_name);
 			console.log(' ');
+			
+			displayRepo(Repo[i],org_name);
 			page_no+=1;
 		}
 	}
@@ -180,7 +182,7 @@ function displayRepo(obj,org_name)
 
 function start_loading()
 {
-	document.getElementById("output").innerHTML=`
+	document.getElementById("loading").innerHTML=`
 			<h4>
 				<center>
 					<button class="buttonload badge badge-info">
@@ -194,12 +196,16 @@ function start_loading()
 
 function stop_loading()
 {	
-	document.getElementById("output").innerHTML=``;	
+	document.getElementById("loading").innerHTML=``;	
 }
 
+function empty_ouput()
+{
+	document.getElementById("output").innerHTML=``;		
+}
 
 function solve() {
-
+	empty_ouput();
 	start_loading();
 
 	//fetching the data from the HTML web Page
@@ -211,10 +217,6 @@ function solve() {
 	(async () => {
 		Repo=await getOrganisationRepo(token_no,Org_Name,N,M);
 		
-		stop_loading();
-		for(let i=0;i<Repo.length;i++)
-		{
-			displayRepo(Repo[i],Org_Name);
-		}					   
+		stop_loading();			   
 	})();
 }
