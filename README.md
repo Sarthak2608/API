@@ -25,3 +25,11 @@ Committees are the users who made a commit to the repository. Top m committee me
 
 ## Web Page Link
 [https://sarthak2608.github.io/Github-API/](https://sarthak2608.github.io/Github-API/)
+
+## Output Screenshots
+
+![GitHub Logo](/images/i1.png)
+![GitHub Logo](/images/i2.png)
+<br><br>
+![GitHub Logo](/images/i3.png)
+![GitHub Logo](/images/i4.png)
