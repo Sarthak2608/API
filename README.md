@@ -11,7 +11,7 @@ Committees are the users who made a commit to the repository. Top m committee me
 1. [Github Api](https://developer.github.com/v3/orgs/) is used to fetch all the name and fork of each Repository then using inbuilt Sort() method ,the Repositories name is sorted in descending order on the basis of forks then we take the atmost N top Repository.
 1. For each Repository ,[Github Api](https://developer.github.com/v3/orgs/) is used to fetch all the Contributors and their Commits,the Contributors name is sorted in descending order on the basis of commits then we take the atmost M top Repository.
 
-*Note:Due to large number of repository and number of contributors ,Total Number of API call is large so I am using Github Token Authorisation.* 
+*Note:Due to large number of repository and number of contributors ,Total Number of API call is large so Github Token Authorisation is used.* 
 
 ## Steps to generate Tokeen Number:
 * First fill Organisation name( like - google) ,N, M
