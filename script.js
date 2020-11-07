@@ -32,7 +32,7 @@ async function getOrganisationRepo(token_no,org_name,n,m) {
 		//Fetching all Repository 
 		u='https://api.github.com/orgs/'+org_name+'/repos'+'?per_page=100&page='+page_no.toString();
 		
-		console.log(u);
+		//console.log(u);
 
 		const response = await fetch(u,{
 			"headers": {
@@ -40,7 +40,7 @@ async function getOrganisationRepo(token_no,org_name,n,m) {
 			},
 			"methods":"GET"
 		});
-    	console.log(response);
+    	//console.log(response);
 		// Storing data in form of JSON 
 		var data = await response.json(); 
 		if(data.length==0)
@@ -85,7 +85,7 @@ async function getOrganisationRepo(token_no,org_name,n,m) {
 		while(1){
 			// Fetching All contributors
 			let u=contributors_url+'?per_page=100&page='+page_no.toString();
-			console.log(u);
+			//console.log(u);
 			const response = await fetch(u, {
 				headers: {
 					'Authorization': 'Token '+token_no,
